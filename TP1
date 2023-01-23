@@ -182,11 +182,19 @@ intro H.
 unfold not in H.
 unfold not.
 destruct H.
-  
+intro H1.
+destruct H1.
+  + apply H. exact H1.
+  + apply H0. exact H1.
+Qed.
 
 Goal ~(P \/ Q) -> (~P /\ ~Q).
 Proof.
-Admitted.
+  intro H.
+  unfold not in H.
+  unfold not.
+  split.
+    + intro H0.
 
 Goal (~P \/ ~Q) -> ~(P /\ Q).
 Proof.
