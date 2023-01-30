@@ -194,11 +194,24 @@ Proof.
   unfold not in H.
   unfold not.
   split.
-    + intro H0.
+    + intro H0. apply H. destruct H.
+      - left. exact H0.
+      - intro H1. apply H. destruct H.
+        * right. exact H1.
+Qed.
 
 Goal (~P \/ ~Q) -> ~(P /\ Q).
 Proof.
-Admitted.
+  intro H.
+  unfold not in H.
+  unfold not.
+  intro H0.
+  destruct H.
+    + apply H. destruct H0.
+      - exact H0.
+    + apply H. destruct H0.
+      - exact H1.
+Qed.
 
 (** *** Exercice 4 - Avec le modus ponens *)
 
