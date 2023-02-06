@@ -1,0 +1,101 @@
+Require Import Arith.
+
+Check f_equal.
+
+Variable T : Type.
+
+Hypothesis T_eq_dec : forall (x y : T), {x=y} + {~x=y}.
+
+Definition Le_lt_dec := Nat.eq_dec.
+
+(*Hypothesis le_lt_dec : forall (n m : nat), {n <= m} + {m < n}.*)
+
+
+          (* Question 1 *)
+
+Definition est_egal x y := match T_eq_dec x y with
+  | left _ => true
+  | right _ => false
+end. 
+
+Definition est_inferieur (n:nat) (m:nat) := match le_lt_dec n m with
+  | left _ => true
+  | right _ => false
+end.
+
+Definition multiset := list (T*nat).
+
+Definition empty : multiset := nil.
+
+Definition singleton (x:T) := cons (x,1) nil.
+
+Fixpoint member (x:T) (s:multiset) := match s with
+  | nil => false
+  | cons (y,n) s => if (est_egal x y) then true else member x s
+end.
+
+Fixpoint add (x:T) (n:nat) (s:multiset) := match s with
+  | nil => cons (x,n) nil
+  | cons (y,m) s => if (est_egal x y) then cons (x,n+m) s
+                    else cons (y,m) (add x n s)
+end.
+
+Fixpoint union (s1:multiset) (s2:multiset) := match s2 with
+  | nil => s1
+  | cons (x,n) s => add x n (union s1 s)
+end.
+
+Fixpoint multiplicity (x:T) (s:multiset) := match s with
+  | nil => 0
+  | cons (y,n) s => if (est_egal x y) then n else multiplicity x s
+end.
+
+Fixpoint removeOne (x:T) (s:multiset) := match s with
+  | nil => nil
+  | cons (y,1) s => if (est_egal x y) then s
+                    else cons (y,1) (removeOne x s)
+  | cons (y,n) s => if (est_egal x y) then cons (y,n-1) s
+                    else cons (y,n) (removeOne x s)
+end.
+
+Fixpoint removeAll (x:T) (s:multiset) := match s with
+  | nil => nil
+  | cons (y,n) s => if (est_egal x y) then s
+                    else cons (y,n) (removeAll x s)
+end.
+
+
+          (* Question 2 *)
+
+Definition InMultiset (x:T) (s:multiset) :=
+if member x s then True else False.
+
+Fixpoint wf (s:multiset) := match s with
+  | nil => True
+  | cons (x,n) s => if member x s then False else (
+                    if est_inferieur n 0 then False else wf s)
+end.
+
+Goal wf empty.
+Proof.
+unfold empty.
+unfold wf.
+trivial.
+Qed.
+
+Goal forall (x:T), wf (singleton x).
+Proof.
+intro x. unfold singleton.
+unfold wf.
+unfold member.
+unfold est_inferieur.
+unfold le_lt_dec.
+unfold nat_rec. 
+unfold nat_rect.
+trivial.
+Qed.
+
+Goal forall (s:multiset) (x:T) (n:nat), wf s -> wf (add x n s).
+Proof.
+intros s x n H.
+unfold add.
