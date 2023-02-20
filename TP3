@@ -2,10 +2,9 @@ Inductive list_nat : Type :=
   | Nil  : list_nat
   | Cons : nat -> list_nat -> list_nat.
 
-Hypothesis nat_eq_dec : forall (x y:nat), (x=y) + (~ x=y).
+Hypothesis nat_eq_dec : forall (x y:nat), {x=y} + {~ x=y}.
 
-Definition le_lt_dec n m : {n <= m} + {m < n}.
-Admitted.
+Hypothesis le_lt_dec : forall (n m :nat), {n <= m} + {m < n}.
 
 Definition if_inf_then_else (n:nat) (m:nat) (exp_then:list_nat) (exp_else:list_nat) :=
   match le_lt_dec n m with
@@ -33,14 +32,14 @@ Definition est_inferieur x y :=
 
 Inductive sorted: list_nat -> Prop :=
   | Sorted0: sorted Nil
-  | SortedS: forall l:list_nat, forall x:nat, forall y:nat, ((sorted (Cons y l)) /\ (est_inferieur x y))-> sorted (Cons x (Cons y l)).
+  | Sorted1: forall x, sorted (Cons x Nil)
+  | SortedS: forall l:list_nat, forall x:nat, forall y:nat,
+             ((sorted (Cons y l)) /\ (est_inferieur x y))-> sorted (Cons x (Cons y l)).
 
+Inductive eq_liste : list_nat -> list_nat -> Prop :=
+  | Eq0 : eq_liste Nil Nil
+  | EqS : forall x : nat, forall l1 l2 : list_nat, eq_liste l1 l2 -> eq_liste (Cons x l1) (Cons x l2).
 
-Definition eq n m :=
-  match nat_eq_dec with
-  | left _ => True
-  | right _ -> False
-  end.
-
-Inductive permuted: list_nat -> list_nat -> Prop :=
-  | Permuted: forall l1:list_nat, forall l2:list_nat, 
+Inductive mem : nat -> list_nat -> Prop :=
+  | Mem1 : forall x : nat, forall l : list_nat, mem x (Cons x l)
+  | MemS : forall x : nat, forall l : list_nat, forall y : nat, mem x l -> mem x (Cons y l).
