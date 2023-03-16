@@ -195,9 +195,17 @@ Goal True -> False -> 2 + 2 = 5.
 Proof.
 Admitted.
 
-  Ltac my_tauto := intros; match goal with
+  Ltac my_tauto := intros; repeat match goal with
                               | [ |- True ] => trivial
-                              | [ H : False |- ] => inversion H.
+                              | [ H : False |- _ ] => inversion H
+                              | [ H : _ |- _ ] => assumption
+                              | [ H : _ |- _ /\ _ ] => split
+                              | [ H : _ |- _ \/ _ ] => simpl (* À compléter *)
+                              | [ H : _ /\ _ |- _ ] => destruct H
+                              | [ H : _ \/ _ |- _ ] => destruct H
+                              | [ H0 : ?P -> _, H1 : ?P |- _ ] => apply H0; exact H1
+                              | [ H : ?P -> _ |- _ ] => apply H
+                              | [ H : _ |- exists x, _ ] => eexists; eapply H
                            end.
 
   (** Voici quelques cas de tests pour vous aider à tester votre tactique : *)
